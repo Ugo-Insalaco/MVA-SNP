@@ -360,21 +360,55 @@ def read_array(path):
     array = array.reshape((width, height, channels), order="F")
     return np.transpose(array, (1, 0, 2)).squeeze()
 
-def load_point_vis(path, masks):
-    with open(path, 'rb') as f:
+def load_point_coords(ply_path):
+    points = read_ply(ply_path)
+    point_coords = np.array([np.array((x, y, z)) for x, y, z, *_ in points])
+    return point_coords
+
+def project_to_camera(point, extr, intr):
+    xyz_cam = np.matmul(extr, np.concatenate((point,[1])))[:3]
+    K_xy_cam = np.matmul(intr, xyz_cam)
+    xy_cam = K_xy_cam[:2] / K_xy_cam[2:3]
+    return xy_cam
+
+def load_point_vis(ply_vis_path, masks):
+    path = os.path.dirname(ply_vis_path)
+    base_dir = os.path.abspath(os.path.join(path, os.pardir))
+    ply_path = os.path.join(path, "fused.ply")
+    cameras_path = os.path.join(base_dir, 'DTU_format', 'cameras.npz')
+
+    print("Loading cameras")
+    cameras = np.load(cameras_path)
+    cameras_extr = cameras['extrinsics']
+    cameras_intr = cameras['intrinsics']
+    print("Loading point")
+    point_coords = load_point_coords(ply_path)
+    print(ply_vis_path, path, base_dir, cameras, ply_path)
+    
+    with open(ply_vis_path, 'rb') as f:
         n = struct.unpack('<Q', f.read(8))[0]
-        print('point number: {}'.format(n))
-        for i in range(n):
-            try:
-                m = struct.unpack('<I', f.read(4))[0]
-                for j in range(m):
-                    try:
-                        idx, u, v = struct.unpack('<III', f.read(4 * 3))
-                        masks[idx][v, u] = 1
-                    except:
-                        pass
-            except:
-                pass
+        for i in tqdm.tqdm(range(n)):
+            m = struct.unpack('<I', f.read(4))[0]
+            point = point_coords[i]
+            for _ in range(m):
+                idx = struct.unpack('<I', f.read(4))[0]
+                width, height = masks[idx].shape
+                point_proj = project_to_camera(point, cameras_extr[idx], cameras_intr)
+                point_proj = np.floor(point_proj).astype(np.int32)
+                if point_proj[0] > 0 and point_proj[1] > 1 and point_proj[0] < height and point_proj[1] < width:
+                    masks[idx][point_proj[1], point_proj[0]] = 1
+    return masks
+
+# def load_point_vis(path, masks):
+#     with open(path, 'rb') as f:
+#         n = struct.unpack('<Q', f.read(8))[0]
+#         print('point number: {}'.format(n))
+#         for i in range(n):
+#             m = struct.unpack('<I', f.read(4))[0]
+#             for j in range(m):
+#                 idx, u, v = struct.unpack('<III', f.read(4 * 3))
+#                 masks[idx][v, u] = 1
+
 
 def read_ply_mask(path):
     images_bin_path = os.path.join(os.path.dirname(path), 'sparse', 'images.bin')
