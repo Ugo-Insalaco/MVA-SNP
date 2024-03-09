@@ -1,0 +1,31 @@
+# Change cuda version and linux distribution if required
+FROM nvidia/cuda:12.1.0-base-ubuntu22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y \
+        git \
+        python3-pip \
+        python3.10-dev
+# Install any python packages you need
+#COPY requirements.txt requirements.txt
+
+#RUN python3 -m pip install -r requirements.txt
+
+
+# Upgrade pip
+RUN python3 -m pip install --upgrade pip
+
+# Install PyTorch and torchvision (Change cuda version if required)
+RUN pip3 install torch==2.1.0 torchvision torchaudio -f https://download.pytorch.org/whl/cu123/torch_stable.html
+
+# Install pytorch3d (Change cuda version if required)
+#RUN pip install --no-index --no-cache-dir pytorch3d -f https://dl.fbaipublicfiles.com/pytorch3d/packaging/wheels/py38_cu123_pyt210/download.html
+# Set the working directory
+WORKDIR /app
+
+# Set the entrypoint
+ENTRYPOINT [ "python3" ]

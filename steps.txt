@@ -1,0 +1,64 @@
+### Docker install (https://docs.docker.com/engine/install/ubuntu/)
+udo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+### CUDA Docker Setup (https://saturncloud.io/blog/how-to-install-pytorch-on-the-gpu-with-docker/)
+distribution=$(. /etc/os-release;echo  $ID$VERSION_ID) 
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+
+# Test Cuda install
+usr/local/cuda/bin/nvcc --version # Check cuda version
+docker run -it --gpus all nvidia/cuda:12.3.0-base-ubuntu20.04 nvidia-smi
+
+# Build torch image
+docker build -t torch-gpu . -f .Dockerfile_torch
+
+# Test docker image
+docker run --name pytorch-container --gpus all -it --rm -v $(pwd):/app pytorch-gpu
+
+### Repositories
+git clone https://github.com/Ugo-Insalaco/MVA-SNP.git
+cd MVA-SNP
+git clone https://github.com/princeton-vl/SNP.git
+
+### PATCH SNP
+cp eval.sh SNP/eval.sh
+cp train.sh SNP/train.sh
+cp colmap2dtu.py SNP/mvs/colmap2dtu.py
+
+### Docker image 
+docker run -t -d --name snp -v $(pwd)/SNP:/app --gpus all -it torch-gpu
+
+### Inside container
+docker exec -ti snp sh
+cd /home/SNP
+
+### Custom dataset
+pip install gdown
+
+# Colmap version
+rose_url='https://drive.google.com/uc?id=1H8EAQBthDRIgAaDg9sHEkR_jdg_ed-ld'
+rose_output='/home/SNP/rose_colmap.zip'
+gdown -O $rose_output $rose_url
+unzip /home/SNP/rose_colmap.zip
+mkdir /home/SNP/mvs/raw_images_resized
+mv /home/SNP/content/SNP/mvs/raw_images_resized/rose /home/SNP/mvs/raw_images_resized/rose
+rm -r /home/SNP/content
+
+# DTU version

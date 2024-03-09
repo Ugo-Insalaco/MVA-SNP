@@ -66,7 +66,7 @@ name_base="d${dataset}_${mod}_${scene}_b${batch_size}_l${loss}_lr${lr}_lrf${lr_f
 
 
 name1="r1_${name_base}"
-CUDA_VISIBLE_DEVICES=0 python train_val.py --setting "$dataset"  --crop_h $crop_h --crop_w $crop_w \
+CUDA_VISIBLE_DEVICES=0 python3 train_val.py --setting "$dataset"  --crop_h $crop_h --crop_w $crop_w \
 --resize_h $crop_h --resize_w $crop_w \
 --name "$name1" \
 --batch_size $batch_size --SUM_FREQ 100 \
