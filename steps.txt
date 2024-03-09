@@ -1,5 +1,5 @@
 ### Docker install (https://docs.docker.com/engine/install/ubuntu/)
-udo apt-get update
+sudo apt-get update
 sudo apt-get install ca-certificates curl
 sudo install -m 0755 -d /etc/apt/keyrings
 sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
@@ -12,6 +12,9 @@ echo \
 sudo apt-get update
 
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+### Add user to docker group
+sudo usermod -aG docker $USER
 
 ### CUDA Docker Setup (https://saturncloud.io/blog/how-to-install-pytorch-on-the-gpu-with-docker/)
 distribution=$(. /etc/os-release;echo  $ID$VERSION_ID) 
@@ -27,10 +30,10 @@ usr/local/cuda/bin/nvcc --version # Check cuda version
 docker run -it --gpus all nvidia/cuda:12.3.0-base-ubuntu20.04 nvidia-smi
 
 # Build torch image
-docker build -t torch-gpu . -f .Dockerfile_torch
+docker build -t snp . -f Dockerfile
 
 # Test docker image
-docker run --name pytorch-container --gpus all -it --rm -v $(pwd):/app pytorch-gpu
+docker run --name pytorch-container --gpus all -it --rm -v $(pwd):/app torch-gpu
 
 ### Repositories
 git clone https://github.com/Ugo-Insalaco/MVA-SNP.git
@@ -41,6 +44,8 @@ git clone https://github.com/princeton-vl/SNP.git
 cp eval.sh SNP/eval.sh
 cp train.sh SNP/train.sh
 cp colmap2dtu.py SNP/mvs/colmap2dtu.py
+cp ply.py SNP/mvs/ply.py
+cp depth_ft_inf.sh SNP/mvs/depth_ft_inf.sh
 
 ### Docker image 
 docker run -t -d --name snp -v $(pwd)/SNP:/app --gpus all -it torch-gpu
@@ -54,11 +59,38 @@ pip install gdown
 
 # Colmap version
 rose_url='https://drive.google.com/uc?id=1H8EAQBthDRIgAaDg9sHEkR_jdg_ed-ld'
-rose_output='/home/SNP/rose_colmap.zip'
-gdown -O $rose_output $rose_url
-unzip /home/SNP/rose_colmap.zip
-mkdir /home/SNP/mvs/raw_images_resized
-mv /home/SNP/content/SNP/mvs/raw_images_resized/rose /home/SNP/mvs/raw_images_resized/rose
+rose_output=$(pwd)/rose_colmap.zip
+python3 -m gdown $rose_url -O $rose_output
+unzip $rose_output
+mkdir $(pwd)/SNP/mvs/raw_images_resized
+mv $(pwd)/content/SNP/mvs/raw_images_resized/rose $(pwd)/SNP/mvs/raw_images_resized/rose
 rm -r /home/SNP/content
 
-# DTU version
+# DTU version (in container)
+python3 colmap2dtu.py --scene rose --colmap_output_dir "/app/mvs/raw_images_resized"
+
+# Refined depth map
+python3 -m gdown 1S8DxWBDR0EDHgyis4JC2z7B1NFdPLccv
+mkdir SNP/mvs/checkpoints
+mv DTU_trained.pth SNP/mvs/checkpoints/
+
+sh depth_ft_inf.sh $SCENE (in container)
+sudo cp -r rose_ft_depths/* SNP/mvs/mvs_depths/ft_depths/rose (mock)
+
+# Manage output
+mkdir -p SNP/data/LLFF/raw
+mkdir -p SNP/data/LLFF/depths
+cp -r SNP/mvs/raw_images_resized/$SCENE SNP/data/LLFF/raw
+cp -r SNP/mvs/mvs_depths/ft_depths/$SCENE SNP/data/LLFF/depths
+
+sh train.sh LLFF $SCENE (in container)
+
+# Manage training output
+mkdir -p SNP/saved_checkpoints/LLFF
+mkdir -p SNP/saved_pointclouds/LLFF
+cp 'SNP/checkpoints/model_best_r1_dLLFF_snp_0_rose_b1_ll1_lr1e-4_lrf1e-2_lro1e-4_fo1_r1.0e-3_g1e-3_s2d1_pd0.5_dimf288_so32_bsSH_sasimple_unet_snnone_fs0.01_aff0.pth' 'SNP/saved_checkpoints/LLFF'
+cp 'SNP/pointclouds/r0.1_dLLFF_snp_0_rose_b1_ll1_lr1e-4_lrf1e-2_lro1e-4_fo1_r1.0e-3_g1e-3_s2d0_pd0.0_dimf27_so3_bsSH_sasimple_unet_snnone_fs0.01_aff0.pt' 'SNP/saved_pointclouds/LLFF'
+
+# Evaluation
+cp render_poses_raw.npy SNP/data/LLFF/raw/rose/render_poses_raw.npy
+
