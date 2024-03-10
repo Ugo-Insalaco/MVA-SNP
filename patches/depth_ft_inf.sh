@@ -24,4 +24,4 @@ python3 inference.py \
 --single_scan $scan \
 --ckpt $ckpt_name
 
-python combine.py --scan ${scan} --folder "${basedir}/ft_depths" --folder1 "${basedir}/ft_depths_s1" --folder2 "${basedir}/ft_depths_s2"
+python2 combine.py --scan ${scan} --folder "${basedir}/ft_depths" --folder1 "${basedir}/ft_depths_s1" --folder2 "${basedir}/ft_depths_s2"
