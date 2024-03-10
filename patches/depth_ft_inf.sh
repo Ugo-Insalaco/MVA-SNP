@@ -1,7 +1,7 @@
 scan=$1
 name=${scan}_ft_depth_gradual_new_colmap
-crop_h=600
-crop_w=800
+crop_h=1200
+crop_w=1600
 
 echo $name
 
@@ -24,4 +24,4 @@ python3 inference.py \
 --single_scan $scan \
 --ckpt $ckpt_name
 
-python2 combine.py --scan ${scan} --folder "${basedir}/ft_depths" --folder1 "${basedir}/ft_depths_s1" --folder2 "${basedir}/ft_depths_s2"
+python3 combine.py --scan ${scan} --folder "${basedir}/ft_depths" --folder1 "${basedir}/ft_depths_s1" --folder2 "${basedir}/ft_depths_s2"

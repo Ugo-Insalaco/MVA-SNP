@@ -4,24 +4,26 @@ mod='snp_eval_0' # make animation
 
 dataset=$1 # command line input
 scene=$2 # command line input
-
+pointcloud_arg=$3
+ckpt_arg=$4
 tb_log_dir='./tb'
 mkdir -p $tb_log_dir
 
-if [ "$dataset"=='LLFF' ]
+if [ "$dataset" = 'LLFF' ]
 then
    precomputed_depth_path="./data/LLFF/depths"
    max_num_pts=500000
-   max_num_pts=5000
+   #max_num_pts=5000
    radius=1.0e-3
    render_scale=2
    rasterize_rounds=2
    crop_h=1512
    crop_w=2016
-   pointcloud_dir="./saved_pointclouds/LLFF/r0.1_dLLFF_snp_0_rose_b1_ll1_lr1e-4_lrf1e-2_lro1e-4_fo1_r1.0e-3_g1e-3_s2d0_pd0.0_dimf27_so3_bsSH_sasimple_unet_snnone_fs0.01_aff0.pt"
-   ckpt_dir="./saved_checkpoints/LLFF/model_best_r1_dLLFF_snp_0_rose_b1_ll1_lr1e-4_lrf1e-2_lro1e-4_fo1_r1.0e-3_g1e-3_s2d1_pd0.5_dimf288_so32_bsSH_sasimple_unet_snnone_fs0.01_aff0.pth"
-
-elif [ "$dataset"=='DTUHR' ]
+   #pointcloud_dir="./saved_pointclouds/LLFF/r0.1_dLLFF_snp_0_rose_b1_ll1_lr1e-4_lrf1e-2_lro1e-4_fo1_r1.0e-3_g1e-3_s2d0_pd0.0_dimf27_so3_bsSH_sasimple_unet_snnone_fs0.01_aff0.pt"
+   pointcloud_dir="./saved_pointclouds/LLFF/r0.1_dLLFF_highres_debug_2_${scene}_b1_ll1_lr1e-4_lrf1e-2_lro1e-4_fo1_r1.0e-3_g1e-3_s2d0_pd0.0_dimf27_cnn0_so3_bsSH_sasimple_unet_knn0_snnone_fs0.01_aff0.pt"
+   #ckpt_dir="./saved_checkpoints/LLFF/model_best_r1_dLLFF_snp_0_rose_b1_ll1_lr1e-4_lrf1e-2_lro1e-4_fo1_r1.0e-3_g1e-3_s2d1_pd0.5_dimf288_so32_bsSH_sasimple_unet_snnone_fs0.01_aff0.pth"
+   ckpt_dir="./saved_checkpoints/LLFF/model_best_r1_dLLFF_highres_debug_2_${scene}_b1_ll1_lr1e-4_lrf1e-2_lro1e-4_fo1_r1.0e-3_g1e-3_s2d0_pd0.0_dimf27_cnn0_so3_bsSH_sasimple_unet_knn0_snnone_fs0.01_aff0.pth"
+elif [ "$dataset" = 'DTUHR' ]
 then
    precomputed_depth_path="./data/DTU/depths"
    max_num_pts=4700000
@@ -36,6 +38,16 @@ then
 else
    echo "unsupported dataset"
    exit 1
+fi
+
+if [ ! -z "$pointcloud_arg" ]
+then
+   pointcloud_dir=$pointcloud_arg
+fi
+
+if [ ! -z "$ckpt_arg" ]
+then
+   ckpt_dir=$ckpt_arg
 fi
 
 free_xyz=0

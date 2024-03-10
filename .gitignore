@@ -1,3 +1,7 @@
 SNP
 custom_data/rose/DTU_format
 custom_data/rose/ft_depths
+custom_data/rose/ft_depths.zip
+custom_data/rose/ft_depths_s1.zip
+custom_data/rose/ft_depths_s2.zip
+custom_data/rose/rose_ft_depth_gradual_new_colmap.pth
