@@ -5,3 +5,5 @@ custom_data/rose/ft_depths.zip
 custom_data/rose/ft_depths_s1.zip
 custom_data/rose/ft_depths_s2.zip
 custom_data/rose/rose_ft_depth_gradual_new_colmap.pth
+custom_data/rose/r1_dLLFF_snp_0_rose_b1_ll1_lr1e-4_lrf1e-2_lro1e-4_fo1_r1.0e-3_g1e-3_s2d1_pd0.5_dimf288_so32_bsSH_sasimple_unet_snnone_fs0.01_aff0.pth
+custom_data/rose/model_best_r1_dLLFF_snp_0_rose_b1_ll1_lr1e-4_lrf1e-2_lro1e-4_fo1_r1.0e-3_g1e-3_s2d1_pd0.5_dimf288_so32_bsSH_sasimple_unet_snnone_fs0.01_aff0.pth

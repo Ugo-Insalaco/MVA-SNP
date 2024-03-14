@@ -12,7 +12,7 @@ if [ "$dataset"=='LLFF' ]
 then
    precomputed_depth_path="./data/LLFF/depths"
    max_num_pts=500000
-   max_num_pts=5000
+   #max_num_pts=5000
    radius=1.0e-3
    render_scale=2
    rasterize_rounds=2
@@ -55,10 +55,10 @@ lr_opy=1e-4
 do_2d_shading=0
 pts_dropout_rate=0.0
 num_steps=5000
-num_steps=10
+#num_steps=10
 img_log_freq=50
 VAL_FREQ=1000
-VAL_FREQ=5
+#VAL_FREQ=5
 dim_pointfeat=27
 shader_output_channel=3
 basis_type='SH'

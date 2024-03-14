@@ -1,6 +1,6 @@
 # File and folder ids extracted from https://drive.google.com/drive/folders/189nUV9_9YM_0bLW1Y97SQ1nK_EVpxGW6
 # If the folder has more than 50 files gdown is not available. Need to find another solution
-# So for now it only works with fern that has at most 40 files per folder
+# So for now it won't download all depth maps for horns and trex scenes.
 
 SCENE=$1
 DEPTH_PATH=SNP/data/LLFF/depths
@@ -70,12 +70,12 @@ DATA_RAW_DRIVE_FOLDER="https://drive.google.com/drive/folders/${DATA_RAW_DRIVE_F
 
 if [ ! -d "${DEPTH_PATH}/${SCENE}" ]
 then 
-    gdown --folder $DATA_DEPTH_DRIVE_FOLDER
+    gdown --folder $DATA_DEPTH_DRIVE_FOLDER --remaining-ok
     mv $SCENE $DEPTH_PATH
 fi
 if [ ! -d "${RAW_PATH}/${SCENE}" ]
 then
-    gdown --folder $DATA_RAW_DRIVE_FOLDER
+    gdown --folder $DATA_RAW_DRIVE_FOLDER --remaining-ok
     mv $SCENE $RAW_PATH
 fi
 

@@ -13,7 +13,7 @@ if [ "$dataset" = 'LLFF' ]
 then
    precomputed_depth_path="./data/LLFF/depths"
    max_num_pts=500000
-   #max_num_pts=5000
+   # max_num_pts=5000
    radius=1.0e-3
    render_scale=2
    rasterize_rounds=2

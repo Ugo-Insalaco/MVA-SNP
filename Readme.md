@@ -42,6 +42,7 @@ sh setup_colmap.sh
 sh custom_dataset.sh rose
 ```
 # Finetuning Raft
+/!\ This step can take up to 2h30 depending your GPU model.  
 Before training the SNP model, a Raft model needs to be finetuned in order to produce refined depth maps of the data. To do so: 
 - Check that the _DTU_format_ folder of the scene is present in _custom_data/$SCENE_
 - Run the **finetune.sh** script. Note that this script was not fully tested due to the lack of computing power on my computer, there might be piping errors.
@@ -52,8 +53,28 @@ sh finetune.sh rose
 ```
 Alternatively you can use [this colab notebook](https://colab.research.google.com/drive/1lMzx6pLVchVBVUfjtbEyBXd7-VIsZnNz?usp=sharing)
  to finetune the model, but requiring you to import your own DTU formated data in the notebook
-# Notes:
-- the docker image can be large, to empty the docker cache use
+
+
+# Training 
+/!\ This step can also take several hours.   
+To train the Pulsar model:
+- Check that the _DTU_format_ folder of the scene is present in _custom_data/$SCENE_
+- Run the **train.sh** script. 
+- Find the output checkpoints and pointclouds in the _custom_data/$SCENE_
+Alternatively if you do not have enough GPU memory for the step 1, you can use [this colab notebook](https://colab.research.google.com/drive/16rWLr2NZZ0pjfgOTr1WN5_ZC1E4wnmBy?usp=sharing) to train the model, but requiring you to import the sculpted point cloud which you obtain after the step 0 of training.
+# Inference
+To run inference, make sure the models and pointclouds are available in your _custom_data/$SCENE_ and run the **eval.sh** script.
+# Notes
+## Image size
+The docker image can be large (10Gb), to empty the docker cache use
 ```
 docker builder prune
 ```
+## Training and eval parameters
+This version of the code doesn't allow to change the training and inference parameters. If you want ot change them you will need to:
+- Make changes to the **patches/train.sh** and **patches/eval.sh** files
+- Run the **update_patches.sh** script
+- Change the output checkpoints and pointclouds file names in the **train.sh** and **eval.sh** root scripts.
+
+## No GPU available
+Sometimes the snp container will stop finding the CUDA GPU. This can be solved by recreating manually the container or running the **rebuild_container.sh** script.
