@@ -60,7 +60,10 @@ Alternatively you can use [this colab notebook](https://colab.research.google.co
 To train the Pulsar model:
 - Check that the _DTU_format_ folder of the scene is present in _custom_data/$SCENE_
 - Run the **train.sh** script. 
-- Find the output checkpoints and pointclouds in the _custom_data/$SCENE_
+- Find the output checkpoints and pointclouds in the _custom_data/$SCENE_  
+``` 
+sh train.sh rose 
+```
 Alternatively if you do not have enough GPU memory for the step 1, you can use [this colab notebook](https://colab.research.google.com/drive/16rWLr2NZZ0pjfgOTr1WN5_ZC1E4wnmBy?usp=sharing) to train the model, but requiring you to import the sculpted point cloud which you obtain after the step 0 of training.
 # Inference
 To run inference, make sure the models and pointclouds are available in your _custom_data/$SCENE_ and run the **eval.sh** script.
