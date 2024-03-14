@@ -66,7 +66,8 @@ sh train.sh rose
 ```
 Alternatively if you do not have enough GPU memory for the step 1, you can use [this colab notebook](https://colab.research.google.com/drive/16rWLr2NZZ0pjfgOTr1WN5_ZC1E4wnmBy?usp=sharing) to train the model, but requiring you to import the sculpted point cloud which you obtain after the step 0 of training.
 # Inference
-To run inference, make sure the models and pointclouds are available in your _custom_data/$SCENE_ and run the **eval.sh** script.
+To run inference, make sure the models, pointclouds and render_poses_raw.npy are available in your _custom_data/$SCENE_ and run the **eval.sh** script.  
+To generate an example of render_poses_raw file, you can run the new_poses.ipynb notebook
 # Notes
 ## Image size
 The docker image can be large (10Gb), to empty the docker cache use
